@@ -23,10 +23,10 @@ la revisión nativa trabaje sobre un repositorio con higiene y una base Git real
 
 ## Tareas
 
-- [ ] `ENV-001` Crear venv e instalar las dependencias declaradas.
-- [ ] `ENV-002` Ejecutar baseline de pytest y smoke test, registrando resultados.
-- [ ] `ENV-003` Añadir `.gitignore` y excluir residuos/artefactos generados.
-- [ ] `ENV-004` Crear commits de trabajo y comprobar la selección intended-untracked.
+- [x] `ENV-001` Crear venv e instalar las dependencias declaradas.
+- [x] `ENV-002` Ejecutar baseline de pytest y smoke test, registrando resultados.
+- [x] `ENV-003` Añadir `.gitignore` y excluir residuos/artefactos generados.
+- [x] `ENV-004` Crear commit base y comprobar la selección de archivos no versionados.
 - [ ] `ENV-005` Ejecutar el preflight/revisión nuevamente y registrar el resultado.
 
 ## Checks aplicables
@@ -41,4 +41,6 @@ la revisión nativa trabaje sobre un repositorio con higiene y una base Git real
 - Ruta: delegated direct para preparación y verificación; la exploración previa
   confirmó que el bloqueo actual es la selección de archivos no versionados.
 - TDD: no está activo; se ejecutan checks funcionales ordinarios.
-- Progreso: plan creado; siguiente tarea `ENV-001`.
+- Progreso: `ENV-001`–`ENV-004` completadas. El baseline compila y la importación
+  de la aplicación funciona; pytest reporta 21 fallos esperados por ejercicios
+  aún no implementados. Commit base: `8c98f9f`.
