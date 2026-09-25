@@ -31,8 +31,8 @@ la revisión nativa trabaje sobre un repositorio con higiene y una base Git real
   registrar el resultado.
 - [x] `APP-001` Completar clasificación y enrutamiento de intenciones.
 - [x] `APP-002` Completar reporte de cobertura por intención.
-- [ ] `APP-003` Corregir la herramienta heredada de respuestas.
-- [ ] `APP-004` Mejorar el prompt verificable y sus artefactos.
+- [x] `APP-003` Corregir la herramienta heredada de respuestas.
+- [x] `APP-004` Mejorar el prompt verificable y sus artefactos.
 - [x] `APP-005` Implementar la guardia anti-loop.
 - [ ] `APP-006` Completar la consola HTTP y el pipeline de consulta.
 
@@ -57,3 +57,5 @@ la revisión nativa trabaje sobre un repositorio con higiene y una base Git real
 - Progreso de implementación: `APP-001`, `APP-002` y la parte de guardia de
   `APP-005` completadas en `4b3c73d`. Sus 29 pruebas pasan; el suite completo
   queda en 29 pasadas y 2 fallos no relacionados en `app.py` aún pendiente.
+- `APP-003` y `APP-004` completadas en `fccba08`; sus 3 pruebas enfocadas pasan.
+  El suite acumulado queda en 32 pasadas y 2 fallos de `app.py`.
