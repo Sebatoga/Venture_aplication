@@ -52,10 +52,12 @@ la revisión nativa trabaje sobre un repositorio con higiene y una base Git real
   de la aplicación funciona; pytest reporta 21 fallos esperados por ejercicios
   aún no implementados. Commit base: `8c98f9f`. La evaluación del commit de
   seguimiento (`ddb817d`) resultó `passive`, sin revisión adicional requerida.
-- Siguiente: mapear los 21 fallos y repartirlos por unidad funcional antes de
-  implementar.
+- Implementación completada; no quedan tareas pendientes.
 - Progreso de implementación: `APP-001`, `APP-002` y la parte de guardia de
   `APP-005` completadas en `4b3c73d`. Sus 29 pruebas pasan; el suite completo
   queda en 29 pasadas y 2 fallos no relacionados en `app.py` aún pendiente.
 - `APP-003` y `APP-004` completadas en `fccba08`; sus 3 pruebas enfocadas pasan.
   El suite acumulado queda en 32 pasadas y 2 fallos de `app.py`.
+- `APP-006` completada en `84c2ed6`; el suite completo queda en 38 pasadas.
+- `NOTAS.md` documenta decisiones, límites, verificación y archivos protegidos;
+  se agregó en `06ab09b`.
