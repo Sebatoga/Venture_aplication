@@ -13,6 +13,7 @@ poder escribirlos, y eso ya es una señal sobre el diseño.
 
 import pytest
 
+import app
 from app import UMBRAL_MINIMO, consultar
 
 
@@ -41,3 +42,84 @@ async def test_pregunta_sin_evidencia_no_inventa_respuesta():
 
 
 # --- TUS TESTS AQUÍ ---
+
+
+@pytest.mark.asyncio
+async def test_pregunta_dudosa_conserva_el_fragmento_literal(monkeypatch):
+    async def fake_search(_pregunta):
+        return [{"source_id": "src-test", "texto": "Texto dudoso", "similitud": 0.60}]
+
+    monkeypatch.setattr(app.retriever, "search", fake_search)
+    r = await consultar("¿Cuántos días de garantía tiene el plan Pro?", "acme")
+
+    assert r["veredicto"] == "DUDOSO"
+    assert r["respuesta"] == "Texto dudoso"
+    assert "0.600" in r["motivo"]
+
+
+@pytest.mark.asyncio
+async def test_pregunta_vacia_no_inventa_respuesta():
+    r = await consultar("", "acme")
+
+    assert r["intencion"] == "desconocido"
+    assert r["veredicto"] == "SIN_EVIDENCIA"
+    assert r["respuesta"] is None
+
+
+@pytest.mark.asyncio
+async def test_motivo_de_umbral_conserva_el_puntaje(monkeypatch):
+    async def fake_search(_pregunta):
+        return [{"source_id": "src-test", "texto": "Texto irrelevante", "similitud": 0.549}]
+
+    monkeypatch.setattr(app.retriever, "search", fake_search)
+    r = await consultar("¿Cuántos días de garantía tiene el plan Pro?", "acme")
+
+    assert r["veredicto"] == "SIN_EVIDENCIA"
+    assert "0.549" in r["motivo"]
+    assert "0.55" in r["motivo"]
+
+
+def test_http_console_success_invalid_route_query_and_internal_error(monkeypatch):
+    import json
+    import threading
+    from http.server import HTTPServer
+    from urllib.request import urlopen
+    from urllib.error import HTTPError
+
+    server = HTTPServer(("127.0.0.1", 0), app.Handler)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    base = f"http://127.0.0.1:{server.server_port}"
+
+    def get(path):
+        try:
+            with urlopen(base + path) as response:
+                return response.status, json.load(response)
+        except HTTPError as error:
+            return error.code, json.load(error)
+
+    try:
+        status, data = get("/api/consulta?q=garant%C3%ADa%20del%20plan%20Pro")
+        assert status == 200
+        assert data["veredicto"] == "APROBADO"
+
+        status, data = get("/no-existe")
+        assert status == 404
+        assert data == {"error": "no encontrado"}
+
+        status, data = get("/api/consulta?q=")
+        assert status == 400
+        assert "error" in data
+
+        async def fail(_pregunta, _workspace):
+            raise RuntimeError("secret internal detail")
+
+        monkeypatch.setattr(app, "consultar", fail)
+        status, data = get("/api/consulta?q=hola")
+        assert status == 500
+        assert data == {"error": "error interno, revisa la consola"}
+        assert "secret" not in json.dumps(data)
+    finally:
+        server.shutdown()
+        thread.join()
+        server.server_close()

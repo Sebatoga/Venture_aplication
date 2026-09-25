@@ -22,6 +22,9 @@ import logging
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import parse_qs, urlparse
 
+from config.intents import classify_intent, specialist_for
+from shared import retriever
+
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 logger = logging.getLogger("consola")
 
@@ -73,7 +76,43 @@ async def consultar(pregunta: str, workspace_id: str = "acme") -> dict:
 
     El `motivo` lo lee un humano cuando algo sale raro: que diga números.
     """
-    raise NotImplementedError("EJERCICIO 6")
+    intencion = classify_intent(pregunta)
+    especialista = specialist_for(intencion)
+    fragmentos = await retriever.search(pregunta)
+
+    mejor = max(fragmentos, key=lambda fragmento: fragmento.get("similitud", 0), default=None)
+    score = float(mejor.get("similitud", 0)) if mejor else 0.0
+
+    if mejor is None:
+        veredicto = "SIN_EVIDENCIA"
+        motivo = "Similitud 0.000: no se recuperaron fragmentos (umbral mínimo 0.55)"
+        respuesta = None
+    elif score < UMBRAL_MINIMO:
+        veredicto = "SIN_EVIDENCIA"
+        motivo = f"Similitud {score:.3f}, por debajo del mínimo de {UMBRAL_MINIMO:.2f}"
+        respuesta = None
+    elif score < UMBRAL_ALTO:
+        veredicto = "DUDOSO"
+        motivo = (
+            f"Similitud {score:.3f}, entre el mínimo de {UMBRAL_MINIMO:.2f} "
+            f"y el umbral alto de {UMBRAL_ALTO:.2f}"
+        )
+        respuesta = mejor["texto"]
+    else:
+        veredicto = "APROBADO"
+        motivo = f"Similitud {score:.3f}, igual o por encima del umbral alto de {UMBRAL_ALTO:.2f}"
+        respuesta = mejor["texto"]
+
+    return {
+        "pregunta": pregunta,
+        "workspace": workspace_id,
+        "intencion": intencion,
+        "especialista": especialista,
+        "fragmentos": fragmentos,
+        "veredicto": veredicto,
+        "motivo": motivo,
+        "respuesta": respuesta,
+    }
 
 
 # ---------------------------------------------------------------------------
@@ -100,6 +139,9 @@ PAGINA = """<!doctype html>
   input[type=text] { width: 100%; padding: 10px; font-size: 16px; }
   button { padding: 10px 18px; font-size: 15px; cursor: pointer; }
   pre { background: #f2f4f7; padding: 14px; overflow-x: auto; white-space: pre-wrap; }
+  .aprobado { border-left: 6px solid #198754; }
+  .dudoso { border-left: 6px solid #f0ad4e; }
+  .sin-evidencia { border-left: 6px solid #dc3545; }
 </style>
 </head><body>
   <h1>Consola del Asistente</h1>
@@ -116,7 +158,6 @@ PAGINA = """<!doctype html>
     </p>
   </form>
 
-  <!-- TODO: reemplaza este volcado por algo legible -->
   <pre id="out">Escribe una pregunta para empezar.</pre>
 
 <script>
@@ -126,12 +167,29 @@ document.getElementById('f').onsubmit = async (e) => {
   const ws = document.getElementById('ws').value;
   const out = document.getElementById('out');
   out.textContent = 'Consultando…';
+  out.className = '';
   try {
     const r = await fetch(`/api/consulta?q=${encodeURIComponent(q)}&ws=${ws}`);
     const data = await r.json();
-    out.textContent = JSON.stringify(data, null, 2);
+    if (!r.ok) throw new Error(data.error || 'La consulta no pudo procesarse');
+    const fragments = data.fragmentos.map((f) =>
+      `- ${f.titulo || f.source_id} (similitud ${f.similitud})\n  ${f.texto}`
+    ).join('\n');
+    out.className = data.veredicto.toLowerCase().replace('_', '-');
+    out.textContent = [
+      `Veredicto: ${data.veredicto}`,
+      `Intención: ${data.intencion}`,
+      `Especialista: ${data.especialista || 'ninguno'}`,
+      `Motivo: ${data.motivo}`,
+      '',
+      'Fragmentos recuperados:',
+      fragments || '(ninguno)',
+      '',
+      `Respuesta: ${data.respuesta || 'No hay evidencia suficiente para responder.'}`,
+    ].join('\n');
   } catch (err) {
-    out.textContent = 'Error: ' + err;
+    out.className = 'sin-evidencia';
+    out.textContent = 'Error: ' + err.message;
   }
 };
 </script>
@@ -160,16 +218,24 @@ class Handler(BaseHTTPRequestHandler):
             return self._send(200, PAGINA, "text/html")
 
         if url.path == "/api/consulta":
-            params = parse_qs(url.query)
+            params = parse_qs(url.query, keep_blank_values=True)
             pregunta = (params.get("q") or [""])[0]
             workspace = (params.get("ws") or ["acme"])[0]
+            if not isinstance(pregunta, str) or not pregunta.strip():
+                return self._send(
+                    400,
+                    json.dumps({"error": "la consulta q es obligatoria"}, ensure_ascii=False),
+                    "application/json",
+                )
+            if not isinstance(workspace, str) or not workspace.strip():
+                return self._send(
+                    400,
+                    json.dumps({"error": "el workspace ws es obligatorio"}, ensure_ascii=False),
+                    "application/json",
+                )
             try:
                 data = asyncio.run(consultar(pregunta, workspace))
                 return self._send(200, json.dumps(data, ensure_ascii=False), "application/json")
-            except NotImplementedError as exc:
-                return self._send(
-                    501, json.dumps({"error": str(exc)}, ensure_ascii=False),
-                    "application/json")
             except Exception:
                 logger.exception("fallo al consultar %r", pregunta)
                 return self._send(

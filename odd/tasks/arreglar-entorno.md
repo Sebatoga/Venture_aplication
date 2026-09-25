@@ -34,7 +34,7 @@ la revisión nativa trabaje sobre un repositorio con higiene y una base Git real
 - [x] `APP-003` Corregir la herramienta heredada de respuestas.
 - [x] `APP-004` Mejorar el prompt verificable y sus artefactos.
 - [x] `APP-005` Implementar la guardia anti-loop.
-- [ ] `APP-006` Completar la consola HTTP y el pipeline de consulta.
+- [x] `APP-006` Completar la consola HTTP y el pipeline de consulta.
 
 ## Checks aplicables
 
