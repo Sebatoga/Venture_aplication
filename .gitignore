@@ -1,0 +1,17 @@
+# Python environments and generated files
+**/.venv/
+**/__pycache__/
+**/.pytest_cache/
+*.py[cod]
+
+# macOS archive residue
+.DS_Store
+__MACOSX/
+
+# Input archives and assessment documents
+*.zip
+*.pdf
+
+# Local tooling state
+.codegraph/
+.atl/.skill-registry.cache.json
