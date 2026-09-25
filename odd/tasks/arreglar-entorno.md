@@ -29,6 +29,11 @@ la revisión nativa trabaje sobre un repositorio con higiene y una base Git real
 - [x] `ENV-004` Crear commit base y comprobar la selección de archivos no versionados.
 - [x] `ENV-005` Ejecutar la evaluación del preflight/revisión nuevamente y
   registrar el resultado.
+- [ ] `APP-001` Completar clasificación y enrutamiento de intenciones.
+- [ ] `APP-002` Completar reporte de cobertura por intención.
+- [ ] `APP-003` Corregir la herramienta heredada de respuestas.
+- [ ] `APP-004` Mejorar el prompt verificable y sus artefactos.
+- [ ] `APP-005` Implementar la guardia anti-loop y la consola HTTP.
 
 ## Checks aplicables
 
@@ -46,3 +51,5 @@ la revisión nativa trabaje sobre un repositorio con higiene y una base Git real
   de la aplicación funciona; pytest reporta 21 fallos esperados por ejercicios
   aún no implementados. Commit base: `8c98f9f`. La evaluación del commit de
   seguimiento (`ddb817d`) resultó `passive`, sin revisión adicional requerida.
+- Siguiente: mapear los 21 fallos y repartirlos por unidad funcional antes de
+  implementar.
