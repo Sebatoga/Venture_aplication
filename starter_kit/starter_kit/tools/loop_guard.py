@@ -13,6 +13,7 @@ Necesitamos una guardia en código.
 from __future__ import annotations
 
 import logging
+import threading
 
 logger = logging.getLogger(__name__)
 
@@ -46,13 +47,31 @@ class LoopGuard:
     """
 
     def __init__(self, max_calls: int = MAX_CALLS):
-        raise NotImplementedError("EJERCICIO 5")
+        if isinstance(max_calls, bool) or not isinstance(max_calls, int) or max_calls < 1:
+            raise ValueError("max_calls must be a positive integer")
+        self._max_calls = max_calls
+        self._counts: dict[str, dict[str, int]] = {}
+        # All compound count operations use one lock, so concurrent agents
+        # cannot lose increments or observe a partially updated snapshot.
+        self._lock = threading.Lock()
 
     def record(self, session_id: str, agent_name: str) -> int:
-        raise NotImplementedError("EJERCICIO 5")
+        with self._lock:
+            session_counts = self._counts.setdefault(session_id, {})
+            count = session_counts.get(agent_name, 0) + 1
+            session_counts[agent_name] = count
+            if count > self._max_calls:
+                raise ToolLoopError(
+                    f"tool loop detected for agent={agent_name!r}, "
+                    f"session={session_id!r}, count={count} "
+                    f"(max_calls={self._max_calls})"
+                )
+            return count
 
     def reset(self, session_id: str) -> None:
-        raise NotImplementedError("EJERCICIO 5")
+        with self._lock:
+            self._counts.pop(session_id, None)
 
     def snapshot(self, session_id: str) -> dict[str, int]:
-        raise NotImplementedError("EJERCICIO 5")
+        with self._lock:
+            return dict(self._counts.get(session_id, {}))

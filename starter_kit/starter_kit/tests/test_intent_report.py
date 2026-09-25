@@ -29,4 +29,46 @@ async def test_globex_solo_tiene_mensajes_de_soporte():
     assert result["desconocido"] == 0
 
 
-# --- TUS TESTS AQUÍ ---
+@pytest.mark.asyncio
+async def test_acme_cuenta_intenciones_y_mensajes_desconocidos():
+    result = await count_messages_by_intent("acme")
+
+    assert result == {
+        "facturacion": 3,
+        "soporte_tecnico": 1,
+        "cuenta": 3,
+        "desconocido": 3,
+    }
+
+
+@pytest.mark.asyncio
+async def test_workspace_vacio_incluye_intenciones_activas_en_cero():
+    result = await count_messages_by_intent("initech")
+
+    assert result == {
+        "facturacion": 0,
+        "soporte_tecnico": 0,
+        "cuenta": 0,
+        "desconocido": 0,
+    }
+
+
+@pytest.mark.asyncio
+async def test_reporte_omite_intenciones_inactivas():
+    result = await count_messages_by_intent("acme")
+
+    assert "ventas" not in result
+
+
+@pytest.mark.asyncio
+async def test_workspace_inexistente_propaga_keyerror():
+    with pytest.raises(KeyError, match="workspace no encontrado"):
+        await count_messages_by_intent("missing")
+
+
+@pytest.mark.asyncio
+async def test_reporte_reutiliza_clientes_singleton():
+    await count_messages_by_intent("acme")
+    await count_messages_by_intent("globex")
+
+    assert clients._INSTANTIATIONS == {"db": 1, "storage": 1}

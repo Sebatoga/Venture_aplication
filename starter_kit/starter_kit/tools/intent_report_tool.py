@@ -13,6 +13,9 @@ from __future__ import annotations
 
 import logging
 
+from config.intents import UNKNOWN, classify_intent
+from shared import clients
+
 logger = logging.getLogger(__name__)
 
 
@@ -46,4 +49,26 @@ async def count_messages_by_intent(workspace_id: str) -> dict[str, int]:
     Returns:
         Diccionario `{intencion: conteo}`.
     """
-    raise NotImplementedError("EJERCICIO 2")
+    db = clients.get_db_client()
+    storage = clients.get_storage_client()
+
+    active_intents = {
+        record.id
+        for record in await db.table("intents").get()
+        if record.to_dict().get("active") is True
+    }
+    counts = {intent: 0 for intent in active_intents}
+    counts[UNKNOWN] = 0
+
+    # Preserve the storage client's KeyError: an unknown workspace is an
+    # input error for the caller, not an empty coverage report.
+    messages = await storage.list_messages(workspace_id)
+    for message in messages:
+        intent = classify_intent(message)
+        if intent in counts:
+            counts[intent] += 1
+        else:
+            counts[UNKNOWN] += 1
+
+    logger.info("Intent coverage for workspace %s: %s", workspace_id, counts)
+    return counts

@@ -12,6 +12,9 @@ EJERCICIO 1: implementa `classify_intent`. No modifiques `INTENTS`.
 
 from __future__ import annotations
 
+import re
+import unicodedata
+
 # ---------------------------------------------------------------------------
 # Catálogo. NO MODIFICAR.
 # Los patrones ya están normalizados: minúsculas, sin acentos, palabras
@@ -90,7 +93,34 @@ def classify_intent(message: str) -> str:
     Returns:
         Una de las claves de `INTENTS`, o `UNKNOWN`.
     """
-    raise NotImplementedError("EJERCICIO 1")
+    if not isinstance(message, str):
+        return UNKNOWN
+
+    # Quoted conversation is context, not a new user message. Normalize the
+    # remaining text so accents, separators, punctuation, and whitespace do
+    # not change the result.
+    content = "\n".join(
+        line for line in message.splitlines() if not line.lstrip().startswith(">")
+    )
+    normalized = unicodedata.normalize("NFKD", content)
+    normalized = "".join(
+        char for char in normalized if not unicodedata.combining(char)
+    ).lower()
+    normalized = re.sub(r"[^a-z0-9]+", " ", normalized)
+    normalized = re.sub(r"\s+", " ", normalized).strip()
+
+    if len(normalized) < MIN_LENGTH:
+        return UNKNOWN
+
+    best_intent = UNKNOWN
+    best_length = 0
+    for intent, entry in INTENTS.items():
+        for pattern in entry["patterns"]:
+            if pattern in normalized and len(pattern) > best_length:
+                best_intent = intent
+                best_length = len(pattern)
+
+    return best_intent
 
 
 def specialist_for(intent: str) -> str | None:
