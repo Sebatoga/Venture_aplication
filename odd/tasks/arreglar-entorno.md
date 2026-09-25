@@ -29,11 +29,12 @@ la revisión nativa trabaje sobre un repositorio con higiene y una base Git real
 - [x] `ENV-004` Crear commit base y comprobar la selección de archivos no versionados.
 - [x] `ENV-005` Ejecutar la evaluación del preflight/revisión nuevamente y
   registrar el resultado.
-- [ ] `APP-001` Completar clasificación y enrutamiento de intenciones.
-- [ ] `APP-002` Completar reporte de cobertura por intención.
+- [x] `APP-001` Completar clasificación y enrutamiento de intenciones.
+- [x] `APP-002` Completar reporte de cobertura por intención.
 - [ ] `APP-003` Corregir la herramienta heredada de respuestas.
 - [ ] `APP-004` Mejorar el prompt verificable y sus artefactos.
-- [ ] `APP-005` Implementar la guardia anti-loop y la consola HTTP.
+- [x] `APP-005` Implementar la guardia anti-loop.
+- [ ] `APP-006` Completar la consola HTTP y el pipeline de consulta.
 
 ## Checks aplicables
 
@@ -53,3 +54,6 @@ la revisión nativa trabaje sobre un repositorio con higiene y una base Git real
   seguimiento (`ddb817d`) resultó `passive`, sin revisión adicional requerida.
 - Siguiente: mapear los 21 fallos y repartirlos por unidad funcional antes de
   implementar.
+- Progreso de implementación: `APP-001`, `APP-002` y la parte de guardia de
+  `APP-005` completadas en `4b3c73d`. Sus 29 pruebas pasan; el suite completo
+  queda en 29 pasadas y 2 fallos no relacionados en `app.py` aún pendiente.
