@@ -10,29 +10,44 @@ las respuestas de un workspace enriquecidas con el texto de su fuente.
 """
 
 import json
+from copy import deepcopy
 from pathlib import Path
 
-from shared.clients import DatabaseClient
+from shared.clients import get_db_client
 
 
-async def get_workspace_answers(workspace_id, cache={}, min_similitud=0.0):
-    if workspace_id in cache:
-        return cache[workspace_id]
+async def get_workspace_answers(workspace_id, cache=None, min_similitud=0.0):
+    """Return workspace answers enriched with their source title.
 
-    db = DatabaseClient()
+    ``cache`` remains an optional caller-owned mapping for compatibility, but
+    it is never shared between calls implicitly and its values are copied at
+    both boundaries.
+    """
+    if cache is None:
+        cache = {}
+
+    cache_key = (workspace_id, min_similitud)
+    if cache_key in cache:
+        return deepcopy(cache[cache_key])
+
+    db = get_db_client()
 
     answers = await db.table("answers").where("workspace_id", workspace_id).get()
 
     result = []
     for a in answers:
         data = a.to_dict()
+        if data["similitud"] < min_similitud:
+            continue
+
         source = await db.table("sources").item(data["source_id"]).get()
-        data["fuente_titulo"] = source.to_dict()["titulo"]
+        data["fuente_titulo"] = source.to_dict().get("titulo") if source.exists else None
         data["confianza"] = {True: "alta", False: "baja"}[data["similitud"] > 0.8]
-        if data["similitud"] >= min_similitud:
-            result.append(data)
+        result.append(data)
 
-    Path("/tmp/last_answers.json").write_text(json.dumps(result))
+    Path("/tmp/last_answers.json").write_text(
+        json.dumps(result, ensure_ascii=False), encoding="utf-8"
+    )
 
-    cache[workspace_id] = result
-    return result
+    cache[cache_key] = deepcopy(result)
+    return deepcopy(result)
