@@ -27,7 +27,8 @@ la revisión nativa trabaje sobre un repositorio con higiene y una base Git real
 - [x] `ENV-002` Ejecutar baseline de pytest y smoke test, registrando resultados.
 - [x] `ENV-003` Añadir `.gitignore` y excluir residuos/artefactos generados.
 - [x] `ENV-004` Crear commit base y comprobar la selección de archivos no versionados.
-- [ ] `ENV-005` Ejecutar el preflight/revisión nuevamente y registrar el resultado.
+- [x] `ENV-005` Ejecutar la evaluación del preflight/revisión nuevamente y
+  registrar el resultado.
 
 ## Checks aplicables
 
@@ -43,4 +44,5 @@ la revisión nativa trabaje sobre un repositorio con higiene y una base Git real
 - TDD: no está activo; se ejecutan checks funcionales ordinarios.
 - Progreso: `ENV-001`–`ENV-004` completadas. El baseline compila y la importación
   de la aplicación funciona; pytest reporta 21 fallos esperados por ejercicios
-  aún no implementados. Commit base: `8c98f9f`.
+  aún no implementados. Commit base: `8c98f9f`. La evaluación del commit de
+  seguimiento (`ddb817d`) resultó `passive`, sin revisión adicional requerida.
