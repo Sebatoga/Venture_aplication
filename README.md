@@ -120,7 +120,7 @@ Desde la raíz del repositorio:
 cd starter_kit/starter_kit
 python3 -m venv .venv
 source .venv/bin/activate       # Windows: .venv\Scripts\activate
-python -m pip install -r requirements.txt
+.venv/bin/python -m pip install -r requirements.txt
 ```
 
 Las únicas dependencias declaradas son `pytest` y `pytest-asyncio`. No se
@@ -132,7 +132,7 @@ Con el entorno virtual activo:
 
 ```bash
 cd starter_kit/starter_kit
-python app.py
+.venv/bin/python app.py
 ```
 
 Abrí `http://localhost:8000` en el navegador. La página permite elegir el
