@@ -35,6 +35,9 @@ la revisión nativa trabaje sobre un repositorio con higiene y una base Git real
 - [x] `APP-004` Mejorar el prompt verificable y sus artefactos.
 - [x] `APP-005` Implementar la guardia anti-loop.
 - [x] `APP-006` Completar la consola HTTP y el pipeline de consulta.
+- [ ] `AUDIT-001` Alinear `NOTAS.md` con todos los apartados exigidos.
+- [ ] `AUDIT-002` Crear `verificador_v2.md` y `casos_verificador.md`.
+- [ ] `AUDIT-003` Verificar paso a paso en un clon limpio y actualizar la guía.
 
 ## Checks aplicables
 
@@ -61,3 +64,6 @@ la revisión nativa trabaje sobre un repositorio con higiene y una base Git real
 - `APP-006` completada en `84c2ed6`; el suite completo queda en 38 pasadas.
 - `NOTAS.md` documenta decisiones, límites, verificación y archivos protegidos;
   se agregó en `06ab09b`.
+- Auditoría de la guía iniciada el 2026-09-26 16:22:07 -05: faltan la estructura
+  completa de `NOTAS.md`, los artefactos v2 del verificador y la evidencia de
+  ejecución solicitada por la guía.
