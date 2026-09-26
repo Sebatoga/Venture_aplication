@@ -124,3 +124,10 @@ Desde `starter_kit/starter_kit` ejecuté:
 Los comandos terminaron con código 0. No se modificaron `shared/clients.py`,
 `shared/retriever.py`, `fixtures/`, `pytest.ini`, `requirements.txt` ni la
 implementación fuente.
+
+## Evidencia de la consola Enterprise
+
+La captura muestra la pregunta del plan Enterprise y la abstención explícita
+cuando el mejor fragmento queda por debajo del umbral:
+
+![Consola con pregunta del plan Enterprise](evidence/console-enterprise.png)
