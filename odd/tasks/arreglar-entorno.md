@@ -38,6 +38,7 @@ la revisión nativa trabaje sobre un repositorio con higiene y una base Git real
 - [x] `AUDIT-001` Alinear `NOTAS.md` con todos los apartados exigidos.
 - [x] `AUDIT-002` Crear `verificador_v2.md` y `casos_verificador.md`.
 - [x] `AUDIT-003` Verificar paso a paso en un clon limpio y actualizar la guía.
+- [x] `DOC-001` Ampliar el README con arquitectura, flujo y trazabilidad de requisitos.
 
 ## Checks aplicables
 
@@ -71,3 +72,6 @@ la revisión nativa trabaje sobre un repositorio con higiene y una base Git real
   estructura obligatoria, existen v1/v2 y los cinco casos del verificador, y la
   captura Enterprise está incluida. El clon limpio en Python 3.14.7 ejecutó 38
   tests, compiló y levantó la consola con HTTP 200.
+- `DOC-001` completada en esta revisión: el README raíz explica la organización,
+  el flujo funcional, cada ejercicio, los requisitos, las restricciones y la
+  verificación reproducible.
