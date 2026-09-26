@@ -35,9 +35,9 @@ la revisión nativa trabaje sobre un repositorio con higiene y una base Git real
 - [x] `APP-004` Mejorar el prompt verificable y sus artefactos.
 - [x] `APP-005` Implementar la guardia anti-loop.
 - [x] `APP-006` Completar la consola HTTP y el pipeline de consulta.
-- [ ] `AUDIT-001` Alinear `NOTAS.md` con todos los apartados exigidos.
-- [ ] `AUDIT-002` Crear `verificador_v2.md` y `casos_verificador.md`.
-- [ ] `AUDIT-003` Verificar paso a paso en un clon limpio y actualizar la guía.
+- [x] `AUDIT-001` Alinear `NOTAS.md` con todos los apartados exigidos.
+- [x] `AUDIT-002` Crear `verificador_v2.md` y `casos_verificador.md`.
+- [x] `AUDIT-003` Verificar paso a paso en un clon limpio y actualizar la guía.
 
 ## Checks aplicables
 
@@ -67,3 +67,7 @@ la revisión nativa trabaje sobre un repositorio con higiene y una base Git real
 - Auditoría de la guía iniciada el 2026-09-26 16:22:07 -05: faltan la estructura
   completa de `NOTAS.md`, los artefactos v2 del verificador y la evidencia de
   ejecución solicitada por la guía.
+- Auditoría cerrada en `abcd419` y `c686c2e`: `NOTAS.md` ahora cubre la
+  estructura obligatoria, existen v1/v2 y los cinco casos del verificador, y la
+  captura Enterprise está incluida. El clon limpio en Python 3.14.7 ejecutó 38
+  tests, compiló y levantó la consola con HTTP 200.
