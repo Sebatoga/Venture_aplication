@@ -157,6 +157,28 @@ La respuesta JSON contiene exactamente:
 }
 ```
 
+### Si no aparecen resultados
+
+El servidor debe permanecer ejecutándose en una terminal y las consultas deben
+hacerse desde otra. Si aparece `Address already in use`, ya existe otro
+`app.py` ocupando el puerto 8000. Volvé a la terminal anterior y detenelo con
+`Ctrl+C`; después iniciá una sola instancia:
+
+```bash
+cd starter_kit/starter_kit
+.venv/bin/python app.py
+```
+
+En una segunda terminal comprobá que responde:
+
+```bash
+curl -i --max-time 10 http://127.0.0.1:8000/
+```
+
+Debe devolver `HTTP/1.0 200 OK`. Si la conexión se establece pero no responde,
+detené la instancia anterior, esperá un segundo y reiniciá el servidor. No
+abras varias instancias en el mismo puerto.
+
 ## Comportamiento y veredictos
 
 La decisión usa el mejor puntaje de similitud recuperado:
