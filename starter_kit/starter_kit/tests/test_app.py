@@ -130,3 +130,50 @@ def test_http_console_success_invalid_route_query_and_internal_error(monkeypatch
         server.shutdown()
         thread.join()
         server.server_close()
+
+
+def test_http_console_html_fallback_escapes_result(monkeypatch):
+    import threading
+    from http.server import HTTPServer
+    from urllib.request import Request, urlopen
+
+    async def fake_consultar(_pregunta, _workspace):
+        return {
+            "pregunta": '<script>alert("q")</script>',
+            "workspace": 'acme & <x>',
+            "intencion": "facturacion",
+            "especialista": "billing_agent",
+            "fragmentos": [{
+                "source_id": "src-1",
+                "titulo": '<img src=x onerror=alert(1)>',
+                "texto": "Fuente & texto",
+                "similitud": 0.91,
+            }],
+            "veredicto": "APROBADO",
+            "motivo": "Motivo <seguro>",
+            "respuesta": 'Respuesta "con evidencia"',
+        }
+
+    monkeypatch.setattr(app, "consultar", fake_consultar)
+    server = HTTPServer(("127.0.0.1", 0), app.Handler)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    try:
+        request = Request(
+            f"http://127.0.0.1:{server.server_port}/api/consulta?q=pregunta&ws=acme",
+            headers={"Accept": "text/html,application/xhtml+xml"},
+        )
+        with urlopen(request) as response:
+            body = response.read().decode("utf-8")
+            assert response.headers["Content-Type"].startswith("text/html")
+        assert "<script>alert" not in body
+        assert "&lt;script&gt;alert(&quot;q&quot;)&lt;/script&gt;" in body
+        assert "&lt;img src=x onerror=alert(1)&gt;" in body
+        assert "Fuente &amp; texto" in body
+        assert "Respuesta &quot;con evidencia&quot;" in body
+        assert "APROBADO" in body
+        assert "0.91" in body
+    finally:
+        server.shutdown()
+        thread.join()
+        server.server_close()

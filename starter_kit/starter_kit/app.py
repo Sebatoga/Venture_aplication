@@ -17,6 +17,7 @@ no evaluamos diseño gráfico, evaluamos que se entienda lo que pasó.
 from __future__ import annotations
 
 import asyncio
+import html
 import json
 import logging
 from http.server import BaseHTTPRequestHandler, HTTPServer
@@ -197,6 +198,85 @@ document.getElementById('f').onsubmit = async (e) => {
 """
 
 
+def _html_result_page(data: dict) -> str:
+    """Render a consultation result for browsers that do not run JavaScript."""
+    escape = lambda value: html.escape(str(value), quote=True)
+    fragments = data.get("fragmentos") or []
+    fragment_html = "".join(
+        "<li><strong>{}</strong> — similitud {}<br><span>{}</span></li>".format(
+            escape(fragment.get("titulo") or fragment.get("source_id") or "(sin título)"),
+            escape(fragment.get("similitud", "")),
+            escape(fragment.get("texto", "")),
+        )
+        for fragment in fragments
+    )
+    if not fragment_html:
+        fragment_html = "<li>(ninguno)</li>"
+    respuesta = data.get("respuesta")
+    answer_html = escape(respuesta) if respuesta is not None else "No hay evidencia suficiente para responder."
+    verdict_class = escape(str(data.get("veredicto", "")).lower().replace("_", "-"))
+    return """<!doctype html>
+<html lang="es"><head><meta charset="utf-8">
+<title>Resultado — Consola del Asistente</title>
+<style>
+  body {{ font-family: system-ui, sans-serif; max-width: 820px; margin: 40px auto;
+         padding: 0 20px; color: #1a2330; }}
+  input[type=text] {{ width: 100%; padding: 10px; font-size: 16px; }}
+  button {{ padding: 10px 18px; font-size: 15px; cursor: pointer; }}
+  section {{ padding: 14px; margin-top: 20px; background: #f2f4f7; }}
+  .aprobado {{ border-left: 6px solid #198754; }}
+  .dudoso {{ border-left: 6px solid #f0ad4e; }}
+  .sin-evidencia {{ border-left: 6px solid #dc3545; }}
+  li {{ margin: 10px 0; }}
+</style></head><body>
+  <h1>Consola del Asistente</h1>
+  <form action="/api/consulta" method="get">
+    <input type="text" name="q" value="{question}" autofocus>
+    <p><select name="ws"><option value="{workspace}" selected>{workspace}</option></select>
+    <button type="submit">Preguntar</button></p>
+  </form>
+  <section class="{verdict_class}">
+    <h2>Resultado</h2>
+    <p><strong>Pregunta:</strong> {question}</p>
+    <p><strong>Workspace:</strong> {workspace}</p>
+    <p><strong>Intención:</strong> {intention}</p>
+    <p><strong>Veredicto:</strong> {verdict}</p>
+    <p><strong>Motivo:</strong> {reason}</p>
+    <h3>Fragmentos recuperados</h3>
+    <ul>{fragment_html}</ul>
+    <h3>Respuesta</h3>
+    <p>{answer}</p>
+  </section>
+</body></html>""".format(
+        question=escape(data.get("pregunta", "")),
+        workspace=escape(data.get("workspace", "")),
+        intention=escape(data.get("intencion", "")),
+        verdict=escape(data.get("veredicto", "")),
+        reason=escape(data.get("motivo", "")),
+        answer=answer_html,
+        verdict_class=verdict_class,
+        fragment_html=fragment_html,
+    )
+
+
+def _prefers_html(accept: str) -> bool:
+    """Return whether the client explicitly accepts HTML responses."""
+    for media_range in accept.lower().split(","):
+        media_type, *parameters = media_range.strip().split(";")
+        if media_type.strip() != "text/html":
+            continue
+        quality = 1.0
+        for parameter in parameters:
+            name, _, value = parameter.strip().partition("=")
+            if name == "q":
+                try:
+                    quality = float(value)
+                except ValueError:
+                    quality = 0.0
+        return quality > 0
+    return False
+
+
 # ---------------------------------------------------------------------------
 # SERVIDOR — ya funciona. Puedes tocarlo si lo necesitas, pero no hace falta.
 # ---------------------------------------------------------------------------
@@ -218,6 +298,7 @@ class Handler(BaseHTTPRequestHandler):
             return self._send(200, PAGINA, "text/html")
 
         if url.path == "/api/consulta":
+            wants_html = _prefers_html(self.headers.get("Accept", ""))
             params = parse_qs(url.query, keep_blank_values=True)
             pregunta = (params.get("q") or [""])[0]
             workspace = (params.get("ws") or ["acme"])[0]
@@ -235,6 +316,8 @@ class Handler(BaseHTTPRequestHandler):
                 )
             try:
                 data = asyncio.run(consultar(pregunta, workspace))
+                if wants_html:
+                    return self._send(200, _html_result_page(data), "text/html")
                 return self._send(200, json.dumps(data, ensure_ascii=False), "application/json")
             except Exception:
                 logger.exception("fallo al consultar %r", pregunta)
