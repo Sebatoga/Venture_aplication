@@ -146,10 +146,10 @@ PAGINA = """<!doctype html>
 </head><body>
   <h1>Consola del Asistente</h1>
 
-  <form id="f">
-    <input type="text" id="q" placeholder="Escribe una pregunta…" autofocus>
+  <form id="f" action="/api/consulta" method="get">
+    <input type="text" id="q" name="q" placeholder="Escribe una pregunta…" autofocus>
     <p>
-      <select id="ws">
+      <select id="ws" name="ws">
         <option value="acme">acme</option>
         <option value="globex">globex</option>
         <option value="initech">initech</option>

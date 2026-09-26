@@ -44,6 +44,13 @@ async def test_pregunta_sin_evidencia_no_inventa_respuesta():
 # --- TUS TESTS AQUÍ ---
 
 
+def test_pagina_formulario_tiene_fallback_get_y_campos_api():
+    assert '<form id="f" action="/api/consulta" method="get">' in app.PAGINA
+    assert 'id="q" name="q"' in app.PAGINA
+    assert 'id="ws" name="ws"' in app.PAGINA
+    assert '<button type="submit">' in app.PAGINA
+
+
 @pytest.mark.asyncio
 async def test_pregunta_dudosa_conserva_el_fragmento_literal(monkeypatch):
     async def fake_search(_pregunta):
