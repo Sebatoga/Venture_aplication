@@ -177,3 +177,42 @@ def test_http_console_html_fallback_escapes_result(monkeypatch):
         server.shutdown()
         thread.join()
         server.server_close()
+
+
+def test_http_console_html_validation_errors_stay_in_console():
+    import threading
+    from http.server import HTTPServer
+    from urllib.error import HTTPError
+    from urllib.request import Request, urlopen
+
+    server = HTTPServer(("127.0.0.1", 0), app.Handler)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    base = f"http://127.0.0.1:{server.server_port}"
+
+    def get(path):
+        request = Request(
+            base + path,
+            headers={"Accept": "text/html,application/xhtml+xml"},
+        )
+        try:
+            with urlopen(request) as response:
+                return response.status, response.headers["Content-Type"], response.read().decode("utf-8")
+        except HTTPError as error:
+            return error.code, error.headers["Content-Type"], error.read().decode("utf-8")
+
+    try:
+        status, content_type, body = get("/api/consulta?q=")
+        assert status == 400
+        assert content_type.startswith("text/html")
+        assert "la consulta q es obligatoria" in body
+        assert 'href="/"' in body
+
+        status, content_type, body = get("/api/consulta?q=hola&ws=")
+        assert status == 400
+        assert content_type.startswith("text/html")
+        assert "el workspace ws es obligatorio" in body
+    finally:
+        server.shutdown()
+        thread.join()
+        server.server_close()

@@ -259,6 +259,24 @@ def _html_result_page(data: dict) -> str:
     )
 
 
+def _html_error_page(message: str) -> str:
+    """Render a readable validation error for browsers submitting the form."""
+    return """<!doctype html>
+<html lang="es"><head><meta charset="utf-8">
+<title>Error — Consola del Asistente</title>
+<style>
+  body {{ font-family: system-ui, sans-serif; max-width: 820px; margin: 40px auto;
+         padding: 0 20px; color: #1a2330; }}
+  section {{ padding: 14px; margin-top: 20px; background: #f8d7da;
+             border-left: 6px solid #dc3545; }}
+  a {{ color: #0d6efd; }}
+</style></head><body>
+  <h1>Consola del Asistente</h1>
+  <section><h2>No se pudo procesar la consulta</h2><p>{}</p></section>
+  <p><a href="/">Volver a la consola</a></p>
+</body></html>""".format(html.escape(message, quote=True))
+
+
 def _prefers_html(accept: str) -> bool:
     """Return whether the client explicitly accepts HTML responses."""
     for media_range in accept.lower().split(","):
@@ -303,12 +321,24 @@ class Handler(BaseHTTPRequestHandler):
             pregunta = (params.get("q") or [""])[0]
             workspace = (params.get("ws") or ["acme"])[0]
             if not isinstance(pregunta, str) or not pregunta.strip():
+                if wants_html:
+                    return self._send(
+                        400,
+                        _html_error_page("la consulta q es obligatoria"),
+                        "text/html",
+                    )
                 return self._send(
                     400,
                     json.dumps({"error": "la consulta q es obligatoria"}, ensure_ascii=False),
                     "application/json",
                 )
             if not isinstance(workspace, str) or not workspace.strip():
+                if wants_html:
+                    return self._send(
+                        400,
+                        _html_error_page("el workspace ws es obligatorio"),
+                        "text/html",
+                    )
                 return self._send(
                     400,
                     json.dumps({"error": "el workspace ws es obligatorio"}, ensure_ascii=False),
