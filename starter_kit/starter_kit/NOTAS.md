@@ -2,16 +2,16 @@
 
 ## Resumen
 
-Los seis ejercicios de la implementación existente están completos y sus 38
-tests pasan. En esta revisión completé la trazabilidad documental del ejercicio
-4: preservé v1, añadí v2 y sus cinco casos, y actualicé su test. Queda
-incompleta la captura de pantalla solicitada por el PDF; no la fabrico ni la
-presento como evidencia. Este work unit no modifica la implementación fuente.
+Los seis ejercicios de la implementación están completos y la suite actual tiene
+41 tests exitosos. Además de completar la trazabilidad documental del ejercicio
+4, se corrigió la experiencia HTTP del navegador: el formulario tiene fallback
+GET, las respuestas HTML escapan datos y las consultas vacías conservan una
+página de error legible.
 
 ## Tiempo
 
 - Inicio de esta revisión: **2026-09-26 16:22:07 -05**.
-- Entrega observada: **2026-09-26 16:27:16 -05**.
+- Entrega observada: **2026-09-26 19:12:45 -05**.
 - Esfuerzo aproximado por ejercicio: E1 0.5 h, E2 0.5 h, E3 1 h, E4 0.75 h,
   E5 0.5 h, E6 1.25 h. Total aproximado: 4.5 h.
 
@@ -105,10 +105,9 @@ del baseline y los resultados de pytest; la IA no fue tratada como evidencia.
 ## Qué haría con una semana más
 
 Añadiría tests automatizados que parseen el esquema JSON de v2 y validen los
-cinco casos contra una implementación de referencia; generaría la captura de
-la consola Enterprise; probaría en un clon limpio; mediría recuperación híbrida
-con un corpus etiquetado; y haría una revisión manual de seguridad, trazabilidad
-y observabilidad del pipeline.
+cinco casos contra una implementación de referencia; mediría recuperación
+híbrida con un corpus etiquetado; probaría accesibilidad del HTML; y haría una
+revisión manual de seguridad, trazabilidad y observabilidad del pipeline.
 
 ## Verificación reproducible
 
@@ -118,12 +117,12 @@ Desde `starter_kit/starter_kit` ejecuté:
 .venv/bin/python -m pytest tests/test_verificador_prompt.py
 # 1 passed, exit code 0
 .venv/bin/python -m pytest
-# 38 passed, exit code 0
+# 41 passed, exit code 0
 ```
 
 Los comandos terminaron con código 0. No se modificaron `shared/clients.py`,
-`shared/retriever.py`, `fixtures/`, `pytest.ini`, `requirements.txt` ni la
-implementación fuente.
+`shared/retriever.py`, `fixtures/`, `pytest.ini` ni `requirements.txt`. La
+implementación de `app.py` sí recibió los fixes de fallback HTML y validación.
 
 ## Evidencia de la consola Enterprise
 

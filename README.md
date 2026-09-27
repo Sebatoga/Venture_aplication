@@ -93,7 +93,7 @@ respuestas HTTP seguras.
 │       │   ├── intent_report_tool.py  # Cobertura por intención
 │       │   ├── legacy_answers_tool.py # Respuestas heredadas corregidas
 │       │   └── loop_guard.py          # Protección contra loops
-│       ├── tests/                    # Suite de 38 pruebas
+│       ├── tests/                    # Suite de 41 pruebas
 │       ├── evidence/                 # Evidencia visual de la consola
 │       ├── NOTAS.md                  # Entrega, decisiones y verificación
 │       ├── pytest.ini                # Configuración de pytest
@@ -277,7 +277,7 @@ Desde `starter_kit/starter_kit`:
 .venv/bin/python -m compileall -q .
 ```
 
-Resultado observado: **38 tests pasan** y la compilación finaliza sin errores.
+Resultado observado: **41 tests pasan** y la compilación finaliza sin errores.
 
 ### Verificación en clon limpio
 
@@ -293,8 +293,9 @@ python3 -m venv .venv
 .venv/bin/python app.py
 ```
 
-El clon obtuvo 38 tests exitosos, compiló correctamente y levantó la consola
-respondiendo `HTTP 200`.
+El clon obtuvo 41 tests exitosos, compiló correctamente y levantó la consola
+respondiendo `HTTP 200`. También se verificó el fallback HTML cuando el
+formulario se envía sin JavaScript.
 
 ## Restricciones y decisiones
 
