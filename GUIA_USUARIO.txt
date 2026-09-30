@@ -1,0 +1,225 @@
+GUIA DE USUARIO - VENTURE APPLICATION
+=====================================
+
+Esta guía explica cómo instalar, probar y utilizar la consola local del
+asistente.
+
+
+1. REQUISITOS
+-------------
+
+- Python 3.10 o superior.
+- pip.
+- No se necesitan credenciales, claves de API ni servicios externos.
+
+
+2. ACTUALIZAR EL PROYECTO
+--------------------------
+
+Desde una terminal:
+
+    cd /home/sebato/Escritorio/ventus
+    git pull --ff-only origin main
+
+
+3. PREPARAR EL ENTORNO
+----------------------
+
+Entrá al directorio de la aplicación:
+
+    cd /home/sebato/Escritorio/ventus/starter_kit/starter_kit
+
+Si todavía no existe el entorno virtual, crealo:
+
+    python3 -m venv .venv
+
+Instalá las dependencias:
+
+    .venv/bin/python -m pip install -r requirements.txt
+
+También podés activar el entorno para usar el comando `python` directamente:
+
+    source .venv/bin/activate
+
+
+4. VERIFICAR LA INSTALACION
+---------------------------
+
+Ejecutá la suite completa:
+
+    .venv/bin/python -m pytest -v
+
+Resultado esperado:
+
+    41 passed
+
+Verificá además la compilación:
+
+    .venv/bin/python -m compileall -q .
+
+Si no aparece ningún mensaje, la compilación terminó correctamente.
+
+
+5. INICIAR EL SERVIDOR
+----------------------
+
+Desde `starter_kit/starter_kit`:
+
+    .venv/bin/python app.py
+
+La terminal debe quedar abierta. El servidor escucha en:
+
+    http://127.0.0.1:8000
+
+Abrí esa dirección en el navegador.
+
+No abras el archivo HTML directamente con `file://`.
+
+
+6. PROBAR DESDE EL NAVEGADOR
+----------------------------
+
+1. Abrí `http://127.0.0.1:8000`.
+2. Seleccioná un workspace.
+3. Escribí una pregunta.
+4. Presioná `Preguntar`.
+5. Revisá intención, fragmentos, similitudes, veredicto, motivo y respuesta.
+
+Preguntas recomendadas:
+
+    Pregunta: ¿Cuántos días de garantía tiene el plan Pro?
+    Workspace: acme
+    Resultado: APROBADO
+
+    Pregunta: olvidé mi contraseña, ¿cómo la restablezco?
+    Workspace: acme
+    Resultado: DUDOSO
+
+    Pregunta: ¿cuánto dura la garantía del plan Enterprise?
+    Workspace: acme
+    Resultado: SIN_EVIDENCIA
+
+    Pregunta: ¿Cómo agrego un usuario nuevo?
+    Workspace: globex
+    Resultado: APROBADO
+
+    Pregunta: ¿Cuál es el horario de soporte?
+    Workspace: globex
+    Resultado: APROBADO
+
+Una consulta vacía debe conservar una página HTML y mostrar un error legible.
+No debe mostrar una pantalla de terminal ni una excepción.
+
+
+7. PROBAR LA API DESDE OTRA TERMINAL
+-------------------------------------
+
+Dejá el servidor ejecutándose en la primera terminal. En una segunda terminal:
+
+    cd /home/sebato/Escritorio/ventus/starter_kit/starter_kit
+
+Consulta aprobada:
+
+    curl "http://127.0.0.1:8000/api/consulta?q=Cuantos%20dias%20de%20garantia%20tiene%20el%20plan%20Pro&ws=acme"
+
+Consulta sin evidencia:
+
+    curl "http://127.0.0.1:8000/api/consulta?q=Cuanto%20dura%20la%20garantia%20del%20plan%20Enterprise&ws=acme"
+
+La API devuelve JSON con estas claves:
+
+    pregunta
+    workspace
+    intencion
+    especialista
+    fragmentos
+    veredicto
+    motivo
+    respuesta
+
+
+8. SIGNIFICADO DE LOS VEREDICTOS
+--------------------------------
+
+APROBADO
+    El mejor fragmento tiene similitud igual o superior a 0.75. Se muestra
+    el texto literal de la evidencia.
+
+DUDOSO
+    La similitud está entre 0.55 y 0.75. Se muestra la evidencia, pero queda
+    marcada para revisión.
+
+SIN_EVIDENCIA
+    No hay fragmentos o la similitud es menor que 0.55. La respuesta es nula
+    para evitar inventar información.
+
+
+9. WORKSPACES
+-------------
+
+acme
+    Tiene preguntas y datos de facturación, cuenta y soporte.
+
+globex
+    Tiene preguntas de soporte técnico.
+
+initech
+    Existe en la configuración, pero su almacenamiento de mensajes está vacío.
+    Las consultas pueden devolver `SIN_EVIDENCIA`.
+
+
+10. PROBLEMAS FRECUENTES
+------------------------
+
+El puerto 8000 está ocupado:
+
+    ss -ltnp 'sport = :8000'
+
+Volvé a la terminal del servidor anterior y presioná `Ctrl+C`. Después iniciá
+una sola instancia de `app.py`.
+
+La página muestra una versión anterior:
+
+    Presioná Ctrl+Shift+R en el navegador.
+
+El servidor no responde:
+
+    1. Detené el proceso actual con Ctrl+C.
+    2. Verificá que el puerto esté libre.
+    3. Iniciá el servidor desde `starter_kit/starter_kit`.
+    4. Usá `http://127.0.0.1:8000`.
+
+No se encuentra pytest:
+
+    Usá `.venv/bin/python -m pytest` en lugar de `python -m pytest`.
+
+La terminal muestra `pyhon: no se encontró la orden`:
+
+    Es un error de escritura. El comando correcto es `python`, no `pyhon`.
+
+
+11. DETENER EL SERVIDOR
+-----------------------
+
+En la terminal donde corre `app.py`, presioná:
+
+    Ctrl+C
+
+
+12. ARCHIVOS IMPORTANTES
+------------------------
+
+    README.md
+        Descripción técnica y trazabilidad de requisitos.
+
+    starter_kit/starter_kit/app.py
+        Pipeline de consulta y servidor HTTP.
+
+    starter_kit/starter_kit/NOTAS.md
+        Decisiones, defectos corregidos y evidencia de verificación.
+
+    starter_kit/starter_kit/tests/
+        Suite automatizada del proyecto.
+
+    starter_kit/starter_kit/evidence/console-enterprise.png
+        Captura de la abstención ante una consulta sin evidencia suficiente.

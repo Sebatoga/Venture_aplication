@@ -39,6 +39,7 @@ la revisión nativa trabaje sobre un repositorio con higiene y una base Git real
 - [x] `AUDIT-002` Crear `verificador_v2.md` y `casos_verificador.md`.
 - [x] `AUDIT-003` Verificar paso a paso en un clon limpio y actualizar la guía.
 - [x] `DOC-001` Ampliar el README con arquitectura, flujo y trazabilidad de requisitos.
+- [x] `DOC-002` Agregar guía de usuario en texto plano y publicarla en Git.
 
 ## Checks aplicables
 
@@ -75,3 +76,5 @@ la revisión nativa trabaje sobre un repositorio con higiene y una base Git real
 - `DOC-001` completada en esta revisión: el README raíz explica la organización,
   el flujo funcional, cada ejercicio, los requisitos, las restricciones y la
   verificación reproducible.
+- `DOC-002` completada con `GUIA_USUARIO.txt`: incluye instalación, tests,
+  arranque, preguntas de prueba, API, workspaces y solución de errores comunes.
